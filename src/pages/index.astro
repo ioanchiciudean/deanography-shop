@@ -1,11 +1,18 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<Welcome />
+  <main class="min-h-screen bg-black text-white">
+    
+    <!-- Hero Section -->
+    <section class="flex flex-col items-center justify-center h-screen text-center px-4">
+      <h1 class="text-6xl font-bold tracking-tight mb-4">Deanography</h1>
+      <p class="text-xl text-gray-400 mb-8">Fine art photography — available to own</p>
+      <a href="/gallery" class="bg-white text-black px-8 py-3 text-sm font-semibold tracking-widest uppercase hover:bg-gray-200 transition">
+        Browse Gallery
+      </a>
+    </section>
+
+  </main>
 </Layout>

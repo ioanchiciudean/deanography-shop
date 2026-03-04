@@ -1,0 +1,47 @@
+---
+export const prerender = false;
+import { sanityClient } from '../lib/sanity';
+
+const sessionId = Astro.url.searchParams.get('session_id');
+const slug = Astro.url.searchParams.get('slug');
+
+// Fetch the photo's download URL from Sanity
+const photo = await sanityClient.fetch(`
+  *[_type == "photo" && slug.current == $slug][0] {
+    title,
+    "downloadUrl": previewImage.asset->url
+  }
+`, { slug });
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Purchase Successful — Deanography</title>
+  </head>
+  <body class="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 text-center">
+    
+    <p class="text-5xl mb-6">🎉</p>
+    <h1 class="text-4xl font-bold mb-4">Thank you!</h1>
+    <p class="text-gray-400 mb-10">Your purchase was successful.</p>
+
+    {photo && (
+      <div class="border border-gray-800 rounded-sm p-8 max-w-md w-full flex flex-col gap-4">
+        <p class="text-sm text-gray-500 uppercase tracking-widest">Your download</p>
+        <p class="text-xl font-semibold">{photo.title}</p>
+        <a 
+          href={photo.downloadUrl + '?dl='} 
+          download
+          class="bg-white text-black px-8 py-3 text-sm font-semibold tracking-widest uppercase hover:bg-gray-200 transition"
+        >
+          ↓ Download Photo
+        </a>
+      </div>
+    )}
+
+    <a href="/gallery" class="mt-10 text-sm text-gray-600 uppercase tracking-widest hover:text-white transition">
+      ← Back to Gallery
+    </a>
+
+  </body>
+</html>
