@@ -5,7 +5,6 @@ import { sanityClient } from '../lib/sanity';
 const sessionId = Astro.url.searchParams.get('session_id');
 const slug = Astro.url.searchParams.get('slug');
 
-// Fetch the photo's download URL from Sanity
 const photo = await sanityClient.fetch(`
   *[_type == "photo" && slug.current == $slug][0] {
     title,
@@ -17,31 +16,65 @@ const photo = await sanityClient.fetch(`
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
     <title>Purchase Successful — Deanography</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
   </head>
-  <body class="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 text-center">
+  <body style="margin:0; background:#000; color:#fff; font-family: system-ui, sans-serif;">
     
-    <p class="text-5xl mb-6">🎉</p>
-    <h1 class="text-4xl font-bold mb-4">Thank you!</h1>
-    <p class="text-gray-400 mb-10">Your purchase was successful.</p>
+    <main style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center;">
+      
+      <!-- Icon -->
+      <div style="font-size:4rem; margin-bottom:1.5rem;">🎉</div>
 
-    {photo && (
-      <div class="border border-gray-800 rounded-sm p-8 max-w-md w-full flex flex-col gap-4">
-        <p class="text-sm text-gray-500 uppercase tracking-widest">Your download</p>
-        <p class="text-xl font-semibold">{photo.title}</p>
-        <a 
-          href={photo.downloadUrl + '?dl='} 
-          download
-          class="bg-white text-black px-8 py-3 text-sm font-semibold tracking-widest uppercase hover:bg-gray-200 transition"
-        >
-          ↓ Download Photo
-        </a>
-      </div>
-    )}
+      <!-- Heading -->
+      <h1 style="font-size:2.5rem; font-weight:700; margin:0 0 1rem;">Thank you!</h1>
+      <p style="color:#9ca3af; margin:0 0 3rem; font-size:1.1rem;">Your purchase was successful.</p>
 
-    <a href="/gallery" class="mt-10 text-sm text-gray-600 uppercase tracking-widest hover:text-white transition">
-      ← Back to Gallery
-    </a>
+      {photo && (
+        <div style="border:1px solid #1f2937; border-radius:4px; padding:2.5rem; max-width:420px; width:100%; display:flex; flex-direction:column; gap:1.5rem;">
+          
+          <!-- Photo title -->
+          <div>
+            <p style="color:#6b7280; font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; margin:0 0 0.5rem;">Your download</p>
+            <p style="font-size:1.25rem; font-weight:600; margin:0;">{photo.title}</p>
+          </div>
+
+          <!-- Divider -->
+          <div style="border-top:1px solid #1f2937;"></div>
+
+          <!-- What's included -->
+          <div style="display:flex; flex-direction:column; gap:0.5rem; text-align:left;">
+            <p style="color:#9ca3af; font-size:0.85rem; margin:0;">✓ High resolution JPEG</p>
+            <p style="color:#9ca3af; font-size:0.85rem; margin:0;">✓ Personal use license</p>
+            <p style="color:#9ca3af; font-size:0.85rem; margin:0;">✓ Instant download</p>
+          </div>
+
+          <!-- Download button -->
+          <a 
+            href={photo.downloadUrl + '?dl='} 
+            download
+            style="background:#fff; color:#000; padding:1rem 2rem; font-size:0.8rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; text-align:center; transition:background 0.2s;"
+            onmouseover="this.style.background='#e5e7eb'"
+            onmouseout="this.style.background='#fff'"
+          >
+            ↓ Download Photo
+          </a>
+
+        </div>
+      )}
+
+      <!-- Back link -->
+      <a 
+        href="/gallery" 
+        style="margin-top:2.5rem; color:#4b5563; font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none;"
+        onmouseover="this.style.color='#fff'"
+        onmouseout="this.style.color='#4b5563'"
+      >
+        ← Back to Gallery
+      </a>
+
+    </main>
 
   </body>
 </html>
