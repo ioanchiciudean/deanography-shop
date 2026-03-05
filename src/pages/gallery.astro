@@ -34,7 +34,7 @@ const photos = await sanityClient.fetch(`
           <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col justify-end p-5">
             <h2 class="text-lg font-semibold">{photo.title}</h2>
             <p class="text-gray-300 text-sm">{photo.location}</p>
-            <p class="text-white font-bold mt-2">${photo.price}</p>
+            <p class="text-white font-bold mt-2">{photo.price}€</p>
           </div>
         </a>
       ))}
