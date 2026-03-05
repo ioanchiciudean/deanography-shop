@@ -12,7 +12,7 @@ export const POST: APIRoute = async ({ request }) => {
     line_items: [
       {
         price_data: {
-          currency: 'usd',
+          currency: 'eur',
           product_data: {
             name: title,
           },
