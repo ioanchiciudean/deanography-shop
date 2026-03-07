@@ -14,7 +14,9 @@ const photo = await sanityClient.fetch(`
     description,
     price,
     category,
-    "imageUrl": previewImage.asset->url
+    "imageUrl": previewImage.asset->url,
+    "imageWidth": previewImage.asset->metadata.dimensions.width,
+    "imageHeight": previewImage.asset->metadata.dimensions.height
   }
 `, { slug });
 

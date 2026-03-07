@@ -26,9 +26,9 @@ const TEXT_POSITIONS = [
 ];
 
 const FONTS = [
+  { label: "Minimal Sans", style: { fontFamily: "Helvetica Neue, Helvetica, sans-serif", letterSpacing: "0.35em", fontWeight: 200, fontSize: "clamp(7px, 1vw, 11px)", textTransform: "uppercase" } },
   { label: "Sparse Caps", style: { fontFamily: "Georgia, serif", letterSpacing: "0.4em", fontWeight: 300, fontSize: "clamp(8px, 1.1vw, 12px)", textTransform: "uppercase" } },
   { label: "Thin Serif", style: { fontFamily: "Georgia, serif", letterSpacing: "0.15em", fontWeight: 400, fontSize: "clamp(9px, 1.3vw, 14px)", fontStyle: "italic" } },
-  { label: "Minimal Sans", style: { fontFamily: "Helvetica Neue, Helvetica, sans-serif", letterSpacing: "0.35em", fontWeight: 200, fontSize: "clamp(7px, 1vw, 11px)", textTransform: "uppercase" } },
 ];
 
 const btn = (active) => ({
@@ -49,7 +49,12 @@ export default function PhotoDetail({ photo }) {
   const [fontIdx, setFontIdx] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imgSize, setImgSize] = useState({ w: 0, h: 0 });
-  const [isLandscape, setIsLandscape] = useState(false);
+  // Use dimensions from Sanity so orientation is correct from first paint (and for cached images)
+  const initialLandscape =
+    photo.imageWidth != null && photo.imageHeight != null
+      ? photo.imageWidth > photo.imageHeight
+      : false;
+  const [isLandscape, setIsLandscape] = useState(initialLandscape);
   const imgRef = useRef(null);
 
   useEffect(() => {
@@ -57,6 +62,20 @@ export default function PhotoDetail({ photo }) {
       setImgSize({ w: imgRef.current.offsetWidth, h: imgRef.current.offsetHeight });
     }
   }, []);
+
+  // Sync orientation when image loads (handles cached images where onLoad may have already fired)
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img || !photo.imageUrl) return;
+    const syncOrientation = () => {
+      if (img.naturalWidth && img.naturalHeight) {
+        setIsLandscape(img.naturalWidth > img.naturalHeight);
+      }
+    };
+    if (img.complete) syncOrientation();
+    img.addEventListener("load", syncOrientation);
+    return () => img.removeEventListener("load", syncOrientation);
+  }, [photo.imageUrl]);
 
   const size = SIZES[sizeIdx];
   const border = BORDERS[borderIdx];
