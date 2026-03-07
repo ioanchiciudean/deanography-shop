@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const SIZES = [
   { label: "30 × 40 cm", price: 79 },
@@ -42,9 +42,13 @@ export default function PhotoDetail({ photo }) {
   const [editingText, setEditingText] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imgSize, setImgSize] = useState({ w: 0, h: 0 });
-  const imgRef = (el) => {
-    if (el) setImgSize({ w: el.offsetWidth, h: el.offsetHeight });
-  };
+  const imgRef = useRef(null);
+
+  useEffect(() => {
+    if (imgRef.current) {
+      setImgSize({ w: imgRef.current.offsetWidth, h: imgRef.current.offsetHeight });
+    }
+  }, []);
 
   const size = SIZES[sizeIdx];
   const border = BORDERS[borderIdx];
@@ -91,7 +95,9 @@ export default function PhotoDetail({ photo }) {
 
           {/* Base image */}
           <img
-            ref={imgRef}
+            ref={imgRef} onLoad={() => {
+              if (imgRef.current) setImgSize({ w: imgRef.current.offsetWidth, h: imgRef.current.offsetHeight });
+            }}
             src={photo.imageUrl}
             alt={photo.title}
             style={{ width: "100%", display: "block" }}
