@@ -49,13 +49,19 @@ export default function PhotoDetail({ photo }) {
   const [fontIdx, setFontIdx] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imgSize, setImgSize] = useState({ w: 0, h: 0 });
-  // Use dimensions from Sanity so orientation is correct from first paint (and for cached images)
-  const initialLandscape =
+  const [isLandscape, setIsLandscape] = useState(() =>
     photo.imageWidth != null && photo.imageHeight != null
       ? photo.imageWidth > photo.imageHeight
-      : false;
-  const [isLandscape, setIsLandscape] = useState(initialLandscape);
+      : false
+  );
   const imgRef = useRef(null);
+
+  // Keep isLandscape in sync when photo changes (e.g. client-side navigation to another photo)
+  useEffect(() => {
+    if (photo.imageWidth != null && photo.imageHeight != null) {
+      setIsLandscape(photo.imageWidth > photo.imageHeight);
+    }
+  }, [photo.imageWidth, photo.imageHeight]);
 
   useEffect(() => {
     if (imgRef.current) {
