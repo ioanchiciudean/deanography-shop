@@ -32,9 +32,9 @@ const FONTS = [
 ];
 
 const btn = (active) => ({
-  background: "none",
-  border: `1px solid ${active ? "#666" : "#222"}`,
-  color: active ? "#fff" : "#555",
+  background: active ? "#f3f4f6" : "none",
+  border: `1px solid ${active ? "#111" : "#d1d5db"}`,
+  color: active ? "#111" : "#6b7280",
   cursor: "pointer",
   transition: "all 0.15s",
 });
@@ -216,18 +216,22 @@ export default function PhotoDetail({ photo }) {
                 {customText}
               </div>
             )}
-
-            {/* Size label */}
-            {showPrint && (
-              <div style={{
-                position: "absolute", bottom: 10, left: "50%", transform: "translateX(-50%)",
-                fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase",
-                color: "rgba(80,80,80,0.6)", pointerEvents: "none", whiteSpace: "nowrap",
-              }}>
-                {size.label} · {size.name} · {BORDERS[borderIdx].label}
-              </div>
-            )}
           </div>
+
+          {/* Size details — below preview to avoid overlapping narrow/full bleed border */}
+          {showPrint && (
+            <div style={{
+              marginTop: 14,
+              fontSize: 10,
+              letterSpacing: "0.3em",
+              textTransform: "uppercase",
+              color: "rgba(0,0,0,0.5)",
+              textAlign: "center",
+              whiteSpace: "nowrap",
+            }}>
+              {size.label} · {size.name} · {BORDERS[borderIdx].label}
+            </div>
+          )}
         </div>
       </div>
 
@@ -236,12 +240,12 @@ export default function PhotoDetail({ photo }) {
 
         {/* Title + location */}
         <div>
-          <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: "0 0 8px" }}>{photo.title}</h1>
+          <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: "0 0 8px", color: "#111" }}>{photo.title}</h1>
           <p style={{ fontSize: "0.75rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#6b7280", margin: 0 }}>{photo.location}</p>
         </div>
 
         {photo.description && (
-          <p style={{ color: "#9ca3af", lineHeight: 1.7, fontSize: "0.9rem", margin: 0 }}>{photo.description}</p>
+          <p style={{ color: "#4b5563", lineHeight: 1.7, fontSize: "0.9rem", margin: 0 }}>{photo.description}</p>
         )}
 
         {/* Type selector */}
@@ -258,7 +262,7 @@ export default function PhotoDetail({ photo }) {
                 <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.1em" }}>{t.label}</span>
                 <span style={{ fontSize: 9, color: type === t.id ? "#888" : "#444", letterSpacing: "0.2em", textTransform: "uppercase" }}>{t.sub}</span>
                 {t.id === "both" && (
-                  <span style={{ position: "absolute", top: -8, right: -1, background: "#fff", color: "#000", fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", padding: "2px 6px", textTransform: "uppercase" }}>−15%</span>
+                  <span style={{ position: "absolute", top: -8, right: -1, background: "#111", color: "#fff", fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", padding: "2px 6px", textTransform: "uppercase" }}>−15%</span>
                 )}
               </button>
             ))}
@@ -267,7 +271,7 @@ export default function PhotoDetail({ photo }) {
 
         {/* Digital info */}
         {showDigital && (
-          <div style={{ borderTop: "1px solid #1a1a1a", paddingTop: 20, display: "flex", flexDirection: "column", gap: 5 }}>
+          <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: 20, display: "flex", flexDirection: "column", gap: 5 }}>
             <p style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: "0.35em", marginBottom: 8 }}>Digital file</p>
             {["High resolution JPEG", "Instant download after purchase", "Personal use license"].map((item, i) => (
               <p key={i} style={{ fontSize: 11, color: "#888", margin: 0 }}>✓ {item}</p>
@@ -277,7 +281,7 @@ export default function PhotoDetail({ photo }) {
 
         {/* Print options */}
         {showPrint && (
-          <div style={{ borderTop: "1px solid #1a1a1a", paddingTop: 20, display: "flex", flexDirection: "column", gap: 20 }}>
+          <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: 20, display: "flex", flexDirection: "column", gap: 20 }}>
 
             <div>
               <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#555", marginBottom: 10 }}>Size</p>
@@ -325,12 +329,12 @@ export default function PhotoDetail({ photo }) {
                 editingText ? (
                   <input autoFocus value={customText} onChange={(e) => setCustomText(e.target.value)}
                     onBlur={() => setEditingText(false)}
-                    style={{ width: "100%", background: "#111", border: "1px solid #333", color: "#fff", padding: "9px 12px", fontSize: 11, letterSpacing: "0.05em", outline: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", background: "#f9fafb", border: "1px solid #e5e7eb", color: "#111", padding: "9px 12px", fontSize: 11, letterSpacing: "0.05em", outline: "none", boxSizing: "border-box" }}
                   />
                 ) : (
                   <button onClick={() => setEditingText(true)} style={{
-                    width: "100%", background: "none", border: "1px solid #1a1a1a",
-                    color: customText ? "#888" : "#444", padding: "9px 12px",
+                    width: "100%", background: "none", border: "1px solid #e5e7eb",
+                    color: customText ? "#374151" : "#6b7280", padding: "9px 12px",
                     fontSize: 11, textAlign: "left", cursor: "pointer",
                     letterSpacing: "0.05em", boxSizing: "border-box",
                   }}>
@@ -349,13 +353,13 @@ export default function PhotoDetail({ photo }) {
                     ...btn(fontIdx === i),
                     padding: "9px 14px", fontSize: 11, textAlign: "left",
                   }}>
-                    <span style={{ ...f.style, fontSize: 11, color: fontIdx === i ? "#fff" : "#555" }}>{f.label}</span>
+                    <span style={{ ...f.style, fontSize: 11, color: fontIdx === i ? "#111" : "#6b7280" }}>{f.label}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div style={{ borderTop: "1px solid #1a1a1a", paddingTop: 16, display: "flex", flexDirection: "column", gap: 5 }}>
+            <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: 16, display: "flex", flexDirection: "column", gap: 5 }}>
               <p style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: "0.35em", marginBottom: 6 }}>Print includes</p>
               {["Hahnemühle Photo Rag 308gsm", "Rolled in archival tube", "Signed & numbered", "Ships in 5–7 days"].map((item, i) => (
                 <p key={i} style={{ fontSize: 11, color: "#888", margin: 0 }}>✓ {item}</p>
@@ -363,7 +367,7 @@ export default function PhotoDetail({ photo }) {
             </div>
 
             {/* Specs — Photoshop / Lightroom */}
-            <div style={{ borderTop: "1px solid #1a1a1a", paddingTop: 16 }}>
+            <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: 16 }}>
               <button
                 type="button"
                 onClick={() => setShowSpecs(!showSpecs)}
@@ -385,12 +389,12 @@ export default function PhotoDetail({ photo }) {
                     ["Letter spacing", printSpecs.tracking],
                     ["Frame", printSpecs.frame],
                   ].map(([k, v]) => (
-                    <div key={k} style={{ display: "flex", borderBottom: "1px solid #1a1a1a", padding: "10px 0" }}>
+                    <div key={k} style={{ display: "flex", borderBottom: "1px solid #e5e7eb", padding: "10px 0" }}>
                       <div style={{ width: 120, flexShrink: 0, fontSize: 9, letterSpacing: "0.25em", textTransform: "uppercase", color: "#555" }}>{k}</div>
                       <div style={{ fontSize: 11, color: "#aaa", letterSpacing: "0.05em" }}>{v}</div>
                     </div>
                   ))}
-                  <div style={{ marginTop: 16, padding: 14, border: "1px solid #1a1a1a", background: "#0a0a0a" }}>
+                  <div style={{ marginTop: 16, padding: 14, border: "1px solid #e5e7eb", background: "#0a0a0a" }}>
                     <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#555", marginBottom: 10 }}>Workflow</p>
                     {PHOTOSHOP_WORKFLOW.map((step, i) => (
                       <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8, alignItems: "flex-start" }}>
@@ -408,16 +412,16 @@ export default function PhotoDetail({ photo }) {
         {/* Price + CTA */}
         <div style={{ display: "flex", alignItems: "center", gap: 16, paddingTop: 4 }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 32, fontWeight: 700, color: "#fff", lineHeight: 1 }}>{totalPrice}€</span>
+            <span style={{ fontSize: 32, fontWeight: 700, color: "#111", lineHeight: 1 }}>{totalPrice}€</span>
             {type === "both" && (
-              <span style={{ fontSize: 10, color: "#555", letterSpacing: "0.2em", marginTop: 4 }}>
+              <span style={{ fontSize: 10, color: "#6b7280", letterSpacing: "0.2em", marginTop: 4 }}>
                 vs {photo.price + size.price}€ separately
               </span>
             )}
           </div>
           <button onClick={handleBuy} disabled={loading} style={{
-            flex: 1, background: loading ? "#222" : "#fff",
-            color: loading ? "#555" : "#000", border: "none",
+            flex: 1, background: loading ? "#e5e7eb" : "#111",
+            color: loading ? "#9ca3af" : "#fff", border: "none",
             padding: "15px 20px", fontSize: 11, fontWeight: 700,
             letterSpacing: "0.3em", textTransform: "uppercase",
             cursor: loading ? "not-allowed" : "pointer", transition: "all 0.15s",
