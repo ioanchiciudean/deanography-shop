@@ -9,7 +9,9 @@ const photos = await sanityClient.fetch(`
     location,
     price,
     category,
-    "imageUrl": previewImage.asset->url
+    "imageUrl": previewImage.asset->url,
+    "imageWidth": previewImage.asset->metadata.dimensions.width,
+    "imageHeight": previewImage.asset->metadata.dimensions.height
   }
 `);
 ---
@@ -23,7 +25,10 @@ const photos = await sanityClient.fetch(`
 
     <div class="grid">
       {photos.map((photo: any) => (
-        <a href={`/photo/${photo.slug.current}`} class="card">
+        <a
+          href={`/photo/${photo.slug.current}`}
+          class={`card ${photo.imageHeight > photo.imageWidth ? 'card-portrait' : ''}`}
+        >
           <img src={photo.imageUrl} alt={photo.title} class="card-img" />
           <div class="card-overlay">
             <p class="card-title">{photo.title}</p>
@@ -67,6 +72,9 @@ const photos = await sanityClient.fetch(`
     background: #111;
     aspect-ratio: 3/2;
     text-decoration: none;
+  }
+  .card-portrait {
+    aspect-ratio: 3/4;
   }
   .card-img {
     width: 100%;
