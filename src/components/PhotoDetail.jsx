@@ -217,21 +217,6 @@ export default function PhotoDetail({ photo }) {
               </div>
             )}
           </div>
-
-          {/* Size details — below preview to avoid overlapping narrow/full bleed border */}
-          {showPrint && (
-            <div style={{
-              marginTop: 14,
-              fontSize: 10,
-              letterSpacing: "0.3em",
-              textTransform: "uppercase",
-              color: "rgba(0,0,0,0.5)",
-              textAlign: "center",
-              whiteSpace: "nowrap",
-            }}>
-              {size.label} · {size.name} · {BORDERS[borderIdx].label}
-            </div>
-          )}
         </div>
       </div>
 
@@ -326,7 +311,9 @@ export default function PhotoDetail({ photo }) {
                 ))}
               </div>
               {textPosition !== "none" && (
-                editingText ? (
+                <>
+                  <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#555", marginBottom: 6 }}>Title Text</p>
+                  {editingText ? (
                   <input autoFocus value={customText} onChange={(e) => setCustomText(e.target.value)}
                     onBlur={() => setEditingText(false)}
                     style={{ width: "100%", background: "#f9fafb", border: "1px solid #e5e7eb", color: "#111", padding: "9px 12px", fontSize: 11, letterSpacing: "0.05em", outline: "none", boxSizing: "border-box" }}
@@ -340,7 +327,8 @@ export default function PhotoDetail({ photo }) {
                   }}>
                     {customText || "Click to add title…"}
                   </button>
-                )
+                )}
+                </>
               )}
             </div>
 
