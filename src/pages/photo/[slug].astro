@@ -2,12 +2,11 @@
 export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
 import { sanityClient } from '../../lib/sanity';
-import PrintSelector from '../../components/PrintSelector';
+import PhotoDetail from '../../components/PhotoDetail';
 
 const { slug } = Astro.params;
 
-const photo = await sanityClient.fetch(
-  `
+const photo = await sanityClient.fetch(`
   *[_type == "photo" && slug.current == $slug][0] {
     title,
     "slug": slug.current,
@@ -17,9 +16,7 @@ const photo = await sanityClient.fetch(
     category,
     "imageUrl": previewImage.asset->url
   }
-`,
-  { slug },
-);
+`, { slug });
 
 if (!photo) {
   return Astro.redirect('/');
@@ -28,30 +25,6 @@ if (!photo) {
 
 <Layout>
   <main class="min-h-screen bg-black text-white">
-
-    <div class="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-
-      <div style="position:sticky; top:80px; align-self:start;">
-        <img src={photo.imageUrl} alt={photo.title} class="w-full rounded-sm" />
-      </div>
-
-      <div class="flex flex-col gap-6">
-        <div>
-          <h1 class="text-4xl font-bold">{photo.title}</h1>
-          <p class="text-gray-400 mt-2 text-sm tracking-widest uppercase">{photo.location}</p>
-        </div>
-
-        <p class="text-gray-300 leading-relaxed">{photo.description}</p>
-
-        <PrintSelector
-          client:load
-          imageUrl={photo.imageUrl}
-          title={photo.title}
-          slug={photo.slug}
-          digitalPrice={photo.price}
-        />
-      </div>
-
-    </div>
+    <PhotoDetail client:load photo={photo} />
   </main>
 </Layout>
