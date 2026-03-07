@@ -42,6 +42,7 @@ export default function PhotoDetail({ photo }) {
   const [editingText, setEditingText] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imgSize, setImgSize] = useState({ w: 0, h: 0 });
+  const [isLandscape, setIsLandscape] = useState(false);
   const imgRef = useRef(null);
 
   useEffect(() => {
@@ -96,7 +97,9 @@ export default function PhotoDetail({ photo }) {
         <div style={{
           position: "relative",
           width: "100%",
-          aspectRatio: ["3/4", "4/5", "5/7"][sizeIdx],
+          aspectRatio: isLandscape
+            ? ["4/3", "5/4", "7/5"][sizeIdx]
+            : ["3/4", "4/5", "5/7"][sizeIdx],
           background: showPrint ? "#f5f2ee" : "#000",
           transition: "aspect-ratio 0.4s ease, background 0.3s ease",
           overflow: "hidden",
@@ -106,7 +109,12 @@ export default function PhotoDetail({ photo }) {
           <img
             ref={imgRef}
             onLoad={() => {
-              if (imgRef.current) setImgSize({ w: imgRef.current.offsetWidth, h: imgRef.current.offsetHeight });
+              if (imgRef.current) {
+                const w = imgRef.current.naturalWidth;
+                const h = imgRef.current.naturalHeight;
+                setIsLandscape(w > h);
+                setImgSize({ w: imgRef.current.offsetWidth, h: imgRef.current.offsetHeight });
+              }
             }}
             src={photo.imageUrl}
             alt={photo.title}
