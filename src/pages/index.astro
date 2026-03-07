@@ -15,25 +15,35 @@ const photos = await sanityClient.fetch(`
 ---
 
 <Layout>
-  <main class="min-h-screen bg-black text-white px-6 py-16">
-    
-    <div class="max-w-6xl mx-auto mb-12">
-      <h1 class="text-4xl font-bold">Deanography</h1>
-      <p class="text-gray-400 mt-2">Fine art photography — available to own</p>
+  <main class="min-h-screen bg-black text-white">
+
+    <!-- Header -->
+    <div style="max-width:1400px; margin:0 auto; padding:4rem 3rem 2rem;">
+      <h1 style="font-size:0.75rem; letter-spacing:0.3em; text-transform:uppercase; color:#555; font-weight:400;">
+        Fine art photography — available to own
+      </h1>
     </div>
 
-    <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Gallery grid -->
+    <div style="max-width:1400px; margin:0 auto; padding:0 3rem 6rem; display:grid; grid-template-columns: repeat(2, 1fr); gap:2px;">
       {photos.map((photo: any) => (
-        <a href={`/photo/${photo.slug.current}`} class="group relative overflow-hidden bg-gray-900 rounded-sm">
-          <img 
-            src={photo.imageUrl} 
+        
+          href={`/photo/${photo.slug.current}`}
+          style="display:block; position:relative; overflow:hidden; background:#111; aspect-ratio: 3/2; text-decoration:none;"
+          class="photo-card"
+        >
+          <img
+            src={photo.imageUrl}
             alt={photo.title}
-            class="w-full h-72 object-cover group-hover:scale-105 transition duration-500"
+            style="width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.6s ease;"
+            class="photo-img"
           />
-          <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col justify-end p-5">
-            <h2 class="text-lg font-semibold">{photo.title}</h2>
-            <p class="text-gray-300 text-sm">{photo.location}</p>
-            <p class="text-white font-bold mt-2">{photo.price}€</p>
+
+          <!-- Overlay -->
+          <div class="photo-overlay" style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%); opacity:0; transition:opacity 0.4s ease; display:flex; flex-direction:column; justify-content:flex-end; padding:2rem;">
+            <p style="color:#fff; font-size:1.1rem; font-weight:600; margin:0 0 4px;">{photo.title}</p>
+            <p style="color:#aaa; font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin:0 0 8px;">{photo.location}</p>
+            <p style="color:#fff; font-size:0.9rem; font-weight:700; margin:0;">from {photo.price}€</p>
           </div>
         </a>
       ))}
@@ -41,3 +51,12 @@ const photos = await sanityClient.fetch(`
 
   </main>
 </Layout>
+
+<style>
+  .photo-card:hover .photo-img {
+    transform: scale(1.04);
+  }
+  .photo-card:hover .photo-overlay {
+    opacity: 1;
+  }
+</style>
