@@ -17,33 +17,18 @@ const photos = await sanityClient.fetch(`
 <Layout>
   <main class="min-h-screen bg-black text-white">
 
-    <!-- Header -->
-    <div style="max-width:1400px; margin:0 auto; padding:4rem 3rem 2rem;">
-      <h1 style="font-size:0.75rem; letter-spacing:0.3em; text-transform:uppercase; color:#555; font-weight:400;">
-        Fine art photography — available to own
-      </h1>
+    <div class="header">
+      <p class="subtitle">Fine art photography — available to own</p>
     </div>
 
-    <!-- Gallery grid -->
-    <div style="max-width:1400px; margin:0 auto; padding:0 3rem 6rem; display:grid; grid-template-columns: repeat(2, 1fr); gap:2px;">
+    <div class="grid">
       {photos.map((photo: any) => (
-        
-          href={`/photo/${photo.slug.current}`}
-          style="display:block; position:relative; overflow:hidden; background:#111; aspect-ratio: 3/2; text-decoration:none;"
-          class="photo-card"
-        >
-          <img
-            src={photo.imageUrl}
-            alt={photo.title}
-            style="width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.6s ease;"
-            class="photo-img"
-          />
-
-          <!-- Overlay -->
-          <div class="photo-overlay" style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%); opacity:0; transition:opacity 0.4s ease; display:flex; flex-direction:column; justify-content:flex-end; padding:2rem;">
-            <p style="color:#fff; font-size:1.1rem; font-weight:600; margin:0 0 4px;">{photo.title}</p>
-            <p style="color:#aaa; font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin:0 0 8px;">{photo.location}</p>
-            <p style="color:#fff; font-size:0.9rem; font-weight:700; margin:0;">from {photo.price}€</p>
+        <a href={`/photo/${photo.slug.current}`} class="card">
+          <img src={photo.imageUrl} alt={photo.title} class="card-img" />
+          <div class="card-overlay">
+            <p class="card-title">{photo.title}</p>
+            <p class="card-location">{photo.location}</p>
+            <p class="card-price">from {photo.price}€</p>
           </div>
         </a>
       ))}
@@ -53,10 +38,76 @@ const photos = await sanityClient.fetch(`
 </Layout>
 
 <style>
-  .photo-card:hover .photo-img {
+  .header {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 4rem 3rem 2rem;
+  }
+  .subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #555;
+    font-weight: 400;
+    margin: 0;
+  }
+  .grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 3rem 6rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+  }
+  .card {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    background: #111;
+    aspect-ratio: 3/2;
+    text-decoration: none;
+  }
+  .card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s ease;
+  }
+  .card:hover .card-img {
     transform: scale(1.04);
   }
-  .photo-card:hover .photo-overlay {
+  .card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2rem;
+  }
+  .card:hover .card-overlay {
     opacity: 1;
+  }
+  .card-title {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .card-location {
+    color: #aaa;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+  .card-price {
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 0;
   }
 </style>
