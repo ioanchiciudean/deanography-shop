@@ -25,6 +25,12 @@ const TEXT_POSITIONS = [
   { id: "bottom", label: "Bottom" },
 ];
 
+const FONTS = [
+  { label: "Sparse Caps", style: { fontFamily: "Georgia, serif", letterSpacing: "0.4em", fontWeight: 300, fontSize: "clamp(8px, 1.1vw, 12px)", textTransform: "uppercase" } },
+  { label: "Thin Serif", style: { fontFamily: "Georgia, serif", letterSpacing: "0.15em", fontWeight: 400, fontSize: "clamp(9px, 1.3vw, 14px)", fontStyle: "italic" } },
+  { label: "Minimal Sans", style: { fontFamily: "Helvetica Neue, Helvetica, sans-serif", letterSpacing: "0.35em", fontWeight: 200, fontSize: "clamp(7px, 1vw, 11px)", textTransform: "uppercase" } },
+];
+
 const btn = (active) => ({
   background: "none",
   border: `1px solid ${active ? "#666" : "#222"}`,
@@ -40,6 +46,7 @@ export default function PhotoDetail({ photo }) {
   const [textPosition, setTextPosition] = useState("bottom");
   const [customText, setCustomText] = useState(photo.title);
   const [editingText, setEditingText] = useState(false);
+  const [fontIdx, setFontIdx] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imgSize, setImgSize] = useState({ w: 0, h: 0 });
   const [isLandscape, setIsLandscape] = useState(false);
@@ -138,11 +145,7 @@ export default function PhotoDetail({ photo }) {
               left: `${borderFrac * 100 + 2}%`,
               width: `${(1 - borderFrac * 2) * 100 - 4}%`,
               textAlign: "center",
-              fontFamily: "Helvetica Neue, Helvetica, sans-serif",
-              fontSize: "clamp(8px, 1.2vw, 13px)",
-              letterSpacing: "0.4em",
-              fontWeight: 300,
-              textTransform: "uppercase",
+              ...FONTS[fontIdx].style,
               color: "rgba(240, 235, 225, 0.9)",
               pointerEvents: "none",
               textShadow: "0 1px 4px rgba(0,0,0,0.6)",
@@ -269,6 +272,21 @@ export default function PhotoDetail({ photo }) {
                   </button>
                 )
               )}
+            </div>
+
+            {/* Typography */}
+            <div>
+              <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#555", marginBottom: 10 }}>Typography</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {FONTS.map((f, i) => (
+                  <button key={i} onClick={() => setFontIdx(i)} style={{
+                    ...btn(fontIdx === i),
+                    padding: "9px 14px", fontSize: 11, textAlign: "left",
+                  }}>
+                    <span style={{ ...f.style, fontSize: 11, color: fontIdx === i ? "#fff" : "#555" }}>{f.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div style={{ borderTop: "1px solid #1a1a1a", paddingTop: 16, display: "flex", flexDirection: "column", gap: 5 }}>
