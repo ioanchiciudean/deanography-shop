@@ -25,18 +25,24 @@ const TEXT_POSITIONS = [
   { id: "bottom", label: "Bottom" },
 ];
 
+const btn = (active) => ({
+  background: "none",
+  border: `1px solid ${active ? "#666" : "#222"}`,
+  color: active ? "#fff" : "#555",
+  cursor: "pointer",
+  transition: "all 0.15s",
+});
+
 export default function ProductSelector({ imageUrl, title, slug, digitalPrice }) {
   const [type, setType] = useState("digital");
   const [sizeIdx, setSizeIdx] = useState(0);
   const [borderIdx, setBorderIdx] = useState(2);
-  const [loading, setLoading] = useState(false);
   const [textPosition, setTextPosition] = useState("bottom");
   const [customText, setCustomText] = useState(title);
   const [editingText, setEditingText] = useState(false);
-  const [naturalRatio, setNaturalRatio] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const size = SIZES[sizeIdx];
-  const border = BORDERS[borderIdx];
   const showDigital = type === "digital" || type === "both";
   const showPrint = type === "print" || type === "both";
 
@@ -47,30 +53,11 @@ export default function ProductSelector({ imageUrl, title, slug, digitalPrice })
     return Math.round((digitalPrice + size.price) * BOTH_DISCOUNT);
   })();
 
-  useEffect(() => {
-    const img = new Image();
-    img.onload = () => setNaturalRatio(img.naturalWidth / img.naturalHeight);
-    img.src = imageUrl;
-  }, [imageUrl]);
-
-  const maxSize = 260;
-  const ratio = naturalRatio ?? 3 / 4;
-  const isLandscape = ratio > 1;
-  const displayW = isLandscape ? maxSize : maxSize * ratio;
-  const displayH = isLandscape ? maxSize / ratio : maxSize;
-  const borderPx = (border.value / 100) * displayH;
-  const photoH = displayH - borderPx * 2;
-  const photoW = displayW - borderPx * 2;
-
-  const textTop = textPosition === "top" ? borderPx + photoH * 0.06 : 
-                  textPosition === "center" ? borderPx + photoH * 0.45 : 
-                  borderPx + photoH * 0.82;
-
   async function handleBuy() {
     setLoading(true);
     let label = title;
-    if (type === "print") label = `${title} — Print ${size.label} (${border.label})`;
-    if (type === "both") label = `${title} — Digital + Print ${size.label} (${border.label})`;
+    if (type === "print") label = `${title} — Print ${size.label} (${BORDERS[borderIdx].label}${textPosition !== "none" ? `, title ${textPosition}: "${customText}"` : ""})`;
+    if (type === "both") label = `${title} — Digital + Print ${size.label} (${BORDERS[borderIdx].label}${textPosition !== "none" ? `, title ${textPosition}: "${customText}"` : ""})`;
     const res = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -81,7 +68,7 @@ export default function ProductSelector({ imageUrl, title, slug, digitalPrice })
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
 
       {/* Type selector */}
       <div>
@@ -91,12 +78,10 @@ export default function ProductSelector({ imageUrl, title, slug, digitalPrice })
         <div style={{ display: "flex", gap: 8 }}>
           {TYPES.map((t) => (
             <button key={t.id} onClick={() => setType(t.id)} style={{
-              flex: 1, background: "none",
-              border: `1px solid ${type === t.id ? "#888" : "#222"}`,
-              color: type === t.id ? "#fff" : "#555",
-              padding: "12px 8px", cursor: "pointer",
+              ...btn(type === t.id),
+              flex: 1, padding: "12px 8px",
               display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-              transition: "all 0.15s", position: "relative",
+              position: "relative",
             }}>
               <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.1em" }}>{t.label}</span>
               <span style={{ fontSize: 9, color: type === t.id ? "#888" : "#444", letterSpacing: "0.2em", textTransform: "uppercase" }}>{t.sub}</span>
@@ -110,8 +95,8 @@ export default function ProductSelector({ imageUrl, title, slug, digitalPrice })
 
       {/* Digital info */}
       {showDigital && (
-        <div style={{ border: "1px solid #1a1a1a", padding: 14, display: "flex", flexDirection: "column", gap: 6 }}>
-          <p style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: "0.35em", marginBottom: 4 }}>Digital file</p>
+        <div style={{ borderTop: "1px solid #1a1a1a", paddingTop: 20, display: "flex", flexDirection: "column", gap: 5 }}>
+          <p style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: "0.35em", marginBottom: 8 }}>Digital file</p>
           {["High resolution JPEG", "Instant download after purchase", "Personal use license"].map((item, i) => (
             <p key={i} style={{ fontSize: 11, color: "#888", margin: 0 }}>✓ {item}</p>
           ))}
@@ -120,144 +105,96 @@ export default function ProductSelector({ imageUrl, title, slug, digitalPrice })
 
       {/* Print options */}
       {showPrint && (
-        <div style={{ display: "flex", gap: 24, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div style={{ borderTop: "1px solid #1a1a1a", paddingTop: 20, display: "flex", flexDirection: "column", gap: 20 }}>
 
-          {/* Preview */}
-          <div style={{ flexShrink: 0 }}>
-            <div style={{
-              width: displayW + 14, height: displayH + 14,
-              background: "#111", border: "2px solid #1e1e1e",
-              boxShadow: "0 12px 40px rgba(0,0,0,0.7)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <div style={{
-                width: displayW, height: displayH,
-                background: "#f5f2ee", position: "relative",
-                overflow: "hidden", transition: "all 0.3s ease",
-              }}>
-                <img src={imageUrl} alt={title} style={{
-                  position: "absolute", top: borderPx, left: borderPx,
-                  width: photoW, height: photoH,
-                  objectFit: "cover", transition: "all 0.3s ease", display: "block",
-                }} />
-                {textPosition !== "none" && customText && (
-                  <div style={{
-                    position: "absolute",
-                    top: textTop,
-                    left: borderPx, width: photoW,
-                    textAlign: "center",
-                    fontFamily: "Helvetica Neue, Helvetica, sans-serif",
-                    fontSize: 8, letterSpacing: "0.4em",
-                    fontWeight: 300, textTransform: "uppercase",
-                    color: "rgba(240,235,225,0.85)",
-                    pointerEvents: "none",
-                    textShadow: "0 1px 3px rgba(0,0,0,0.5)",
-                    transition: "top 0.3s ease",
-                  }}>
-                    {customText}
-                  </div>
-                )}
-              </div>
-            </div>
-            <p style={{ fontSize: 9, color: "#444", letterSpacing: "0.3em", textTransform: "uppercase", marginTop: 8, textAlign: "center" }}>
-              {size.label} · {border.label}
-            </p>
-          </div>
-
-          {/* Controls */}
-          <div style={{ flex: 1, minWidth: 180, display: "flex", flexDirection: "column", gap: 16 }}>
-
-            {/* Size */}
-            <div>
-              <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#555", marginBottom: 8 }}>Size</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {SIZES.map((s, i) => (
-                  <button key={i} onClick={() => setSizeIdx(i)} style={{
-                    background: "none", border: `1px solid ${sizeIdx === i ? "#666" : "#222"}`,
-                    color: sizeIdx === i ? "#fff" : "#555",
-                    padding: "9px 12px", cursor: "pointer", fontSize: 11,
-                    textAlign: "left", display: "flex", justifyContent: "space-between", transition: "all 0.15s",
-                  }}>
-                    <span>{s.label}</span>
-                    <span style={{ color: sizeIdx === i ? "#aaa" : "#444" }}>{s.price}€</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Border */}
-            <div>
-              <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#555", marginBottom: 8 }}>Border</p>
-              <div style={{ display: "flex", gap: 5 }}>
-                {BORDERS.map((b, i) => (
-                  <button key={i} onClick={() => setBorderIdx(i)} style={{
-                    background: "none", border: `1px solid ${borderIdx === i ? "#666" : "#222"}`,
-                    color: borderIdx === i ? "#fff" : "#555",
-                    padding: "8px 10px", cursor: "pointer", fontSize: 10, flex: 1, transition: "all 0.15s",
-                  }}>
-                    {b.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Text on print */}
-            <div>
-              <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#555", marginBottom: 8 }}>Title on print</p>
-              <div style={{ display: "flex", gap: 5, marginBottom: 8 }}>
-                {TEXT_POSITIONS.map((p) => (
-                  <button key={p.id} onClick={() => setTextPosition(p.id)} style={{
-                    background: "none", border: `1px solid ${textPosition === p.id ? "#666" : "#222"}`,
-                    color: textPosition === p.id ? "#fff" : "#555",
-                    padding: "6px 8px", cursor: "pointer", fontSize: 10, flex: 1, transition: "all 0.15s",
-                  }}>
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-              {textPosition !== "none" && (
-                editingText ? (
-                  <input
-                    autoFocus
-                    value={customText}
-                    onChange={(e) => setCustomText(e.target.value)}
-                    onBlur={() => setEditingText(false)}
-                    style={{
-                      width: "100%", background: "#111", border: "1px solid #333",
-                      color: "#fff", padding: "7px 10px", fontSize: 11,
-                      letterSpacing: "0.05em", outline: "none", boxSizing: "border-box",
-                    }}
-                  />
-                ) : (
-                  <button onClick={() => setEditingText(true)} style={{
-                    width: "100%", background: "none", border: "1px solid #1a1a1a",
-                    color: customText ? "#888" : "#444", padding: "7px 10px",
-                    fontSize: 11, textAlign: "left", cursor: "pointer",
-                    letterSpacing: "0.05em",
-                  }}>
-                    {customText || "Click to add title…"}
-                  </button>
-                )
-              )}
-            </div>
-
-            {/* Print includes */}
-            <div style={{ border: "1px solid #1a1a1a", padding: 12, display: "flex", flexDirection: "column", gap: 5 }}>
-              <p style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: "0.35em", marginBottom: 2 }}>Print includes</p>
-              {["Hahnemühle Photo Rag 308gsm", "Rolled in archival tube", "Signed & numbered", "Ships in 5–7 days"].map((item, i) => (
-                <p key={i} style={{ fontSize: 11, color: "#888", margin: 0 }}>✓ {item}</p>
+          {/* Size */}
+          <div>
+            <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#555", marginBottom: 10 }}>Size</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              {SIZES.map((s, i) => (
+                <button key={i} onClick={() => setSizeIdx(i)} style={{
+                  ...btn(sizeIdx === i),
+                  padding: "10px 14px", fontSize: 11,
+                  textAlign: "left", display: "flex", justifyContent: "space-between",
+                }}>
+                  <span>{s.label}</span>
+                  <span style={{ color: sizeIdx === i ? "#aaa" : "#444" }}>{s.price}€</span>
+                </button>
               ))}
             </div>
           </div>
+
+          {/* Border */}
+          <div>
+            <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#555", marginBottom: 10 }}>Border</p>
+            <div style={{ display: "flex", gap: 6 }}>
+              {BORDERS.map((b, i) => (
+                <button key={i} onClick={() => setBorderIdx(i)} style={{
+                  ...btn(borderIdx === i),
+                  padding: "9px 12px", fontSize: 10, flex: 1,
+                }}>
+                  {b.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Title on print */}
+          <div>
+            <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#555", marginBottom: 10 }}>Title on print</p>
+            <div style={{ display: "flex", gap: 6, marginBottom: textPosition !== "none" ? 10 : 0 }}>
+              {TEXT_POSITIONS.map((p) => (
+                <button key={p.id} onClick={() => setTextPosition(p.id)} style={{
+                  ...btn(textPosition === p.id),
+                  padding: "8px 10px", fontSize: 10, flex: 1,
+                }}>
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            {textPosition !== "none" && (
+              editingText ? (
+                <input
+                  autoFocus
+                  value={customText}
+                  onChange={(e) => setCustomText(e.target.value)}
+                  onBlur={() => setEditingText(false)}
+                  style={{
+                    width: "100%", background: "#111", border: "1px solid #333",
+                    color: "#fff", padding: "9px 12px", fontSize: 11,
+                    letterSpacing: "0.05em", outline: "none", boxSizing: "border-box",
+                  }}
+                />
+              ) : (
+                <button onClick={() => setEditingText(true)} style={{
+                  width: "100%", background: "none", border: "1px solid #1a1a1a",
+                  color: customText ? "#888" : "#444", padding: "9px 12px",
+                  fontSize: 11, textAlign: "left", cursor: "pointer",
+                  letterSpacing: "0.05em", boxSizing: "border-box",
+                }}>
+                  {customText || "Click to add title…"}
+                </button>
+              )
+            )}
+          </div>
+
+          {/* Print includes */}
+          <div style={{ borderTop: "1px solid #1a1a1a", paddingTop: 16, display: "flex", flexDirection: "column", gap: 5 }}>
+            <p style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: "0.35em", marginBottom: 6 }}>Print includes</p>
+            {["Hahnemühle Photo Rag 308gsm", "Rolled in archival tube", "Signed & numbered", "Ships in 5–7 days"].map((item, i) => (
+              <p key={i} style={{ fontSize: 11, color: "#888", margin: 0 }}>✓ {item}</p>
+            ))}
+          </div>
+
         </div>
       )}
 
       {/* Price + CTA */}
-      <div style={{ display: "flex", alignItems: "center", gap: 16, paddingTop: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16, paddingTop: 4 }}>
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 30, fontWeight: 700, color: "#fff", lineHeight: 1 }}>{totalPrice}€</span>
+          <span style={{ fontSize: 32, fontWeight: 700, color: "#fff", lineHeight: 1 }}>{totalPrice}€</span>
           {type === "both" && (
-            <span style={{ fontSize: 10, color: "#666", letterSpacing: "0.2em", marginTop: 3 }}>
+            <span style={{ fontSize: 10, color: "#555", letterSpacing: "0.2em", marginTop: 4 }}>
               vs {digitalPrice + size.price}€ separately
             </span>
           )}
@@ -265,7 +202,7 @@ export default function ProductSelector({ imageUrl, title, slug, digitalPrice })
         <button onClick={handleBuy} disabled={loading} style={{
           flex: 1, background: loading ? "#222" : "#fff",
           color: loading ? "#555" : "#000", border: "none",
-          padding: "14px 20px", fontSize: 11, fontWeight: 700,
+          padding: "15px 20px", fontSize: 11, fontWeight: 700,
           letterSpacing: "0.3em", textTransform: "uppercase",
           cursor: loading ? "not-allowed" : "pointer", transition: "all 0.15s",
         }}>
