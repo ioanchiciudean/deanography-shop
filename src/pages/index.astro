@@ -64,6 +64,9 @@ const photos = await sanityClient.fetch(`
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
+    /* Allow portrait items to span multiple rows and pack tightly */
+    grid-auto-rows: 260px;
+    grid-auto-flow: dense;
   }
   .card {
     display: block;
@@ -75,6 +78,7 @@ const photos = await sanityClient.fetch(`
   }
   .card-portrait {
     aspect-ratio: 3/4;
+    grid-row: span 2;
   }
   .card-img {
     width: 100%;
