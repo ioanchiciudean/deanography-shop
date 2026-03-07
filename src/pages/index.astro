@@ -60,11 +60,11 @@ const photos = await sanityClient.fetch(`
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 3rem 6rem;
-    row-gap: 3rem;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-    /* Allow portrait items to span multiple rows and pack tightly */
+    row-gap: 3rem;
+    column-gap: 2rem;
+    /* Allow portrait items to span multiple rows and pack tightly while preserving gutters */
     grid-auto-rows: 260px;
     grid-auto-flow: dense;
   }
