@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 
 const SIZES = [
-  { label: "30 × 40 cm", price: 79 },
-  { label: "40 × 50 cm", price: 119 },
-  { label: "50 × 70 cm", price: 169 },
+  { label: "30 × 40 cm", price: 79, name: "Standard Portrait", widthMm: 300, heightMm: 400 },
+  { label: "40 × 50 cm", price: 119, name: "Large Portrait", widthMm: 400, heightMm: 500 },
+  { label: "50 × 70 cm", price: 169, name: "Statement", widthMm: 500, heightMm: 700 },
 ];
 
 const BORDERS = [
@@ -48,6 +48,7 @@ export default function PhotoDetail({ photo }) {
   const [editingText, setEditingText] = useState(false);
   const [fontIdx, setFontIdx] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [showSpecs, setShowSpecs] = useState(false);
   const [imgSize, setImgSize] = useState({ w: 0, h: 0 });
   const [isLandscape, setIsLandscape] = useState(() =>
     photo.imageWidth != null && photo.imageHeight != null
@@ -99,6 +100,33 @@ export default function PhotoDetail({ photo }) {
   const borderFrac = border.value / 100;
   const borderPx = imgSize.h * borderFrac;
 
+  // Print specs (for Specs panel, matches original guide)
+  const printSpecs = {
+    canvas: `${size.label} @ 300 DPI`,
+    border: border.value === 0
+      ? "No border (full bleed)"
+      : `${Math.round((border.value / 100) * size.heightMm)} mm white border`,
+    textPos: textPosition === "none"
+      ? "No text"
+      : textPosition === "top"
+        ? "8% from top of photo"
+        : textPosition === "center"
+          ? "48% from top (centred)"
+          : "84% from top of photo",
+    textSize: `${Math.round((size.heightMm / 100) * 1.4)} px at 300 DPI (≈ ${Math.round((size.heightMm / 100) * 1.4 * 0.35)} mm)`,
+    tracking: FONTS[fontIdx].style.letterSpacing,
+    frame: "Thin black aluminium, 8–12 mm profile",
+  };
+
+  const PHOTOSHOP_WORKFLOW = [
+    "New document at 300 DPI, canvas = print size",
+    "Place your photo, leave white border around it",
+    "Add text layer on top of the photo (not on border)",
+    "Set text color to #E8E3D5 or #FFFFFF, opacity 80–90%",
+    "Export as TIFF or high-quality JPEG (quality 12)",
+    "Send to lab or print directly",
+  ];
+
   // Text vertical position inside image
   const textTopPct =
     textPosition === "top" ? 8 :
@@ -122,74 +150,84 @@ export default function PhotoDetail({ photo }) {
   return (
     <div style={{ maxWidth: 1200, margin: "0 auto", padding: "2.5rem 2rem", display: "grid", gridTemplateColumns: "1fr 420px", gap: "4rem", alignItems: "start" }}>
 
-      {/* LEFT — sticky image with live preview */}
+{/* LEFT — sticky image with live preview */}
       <div style={{ position: "sticky", top: 80, alignSelf: "start" }}>
-
-        {/* Outer container — white background for border, aspect ratio for size */}
+        {/* Frame shadow + frame (from original guide) when print is selected */}
         <div style={{
           position: "relative",
-          width: "100%",
-          aspectRatio: isLandscape
-            ? ["4/3", "5/4", "7/5"][sizeIdx]
-            : ["3/4", "4/5", "5/7"][sizeIdx],
-          background: showPrint ? "#f5f2ee" : "#000",
-          transition: "aspect-ratio 0.4s ease, background 0.3s ease",
-          overflow: "hidden",
+          ...(showPrint && {
+            boxShadow: "0 20px 60px rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.6)",
+            background: "#111",
+            border: "3px solid #1a1a1a",
+            padding: 12,
+          }),
         }}>
+          {/* Outer container — white background for border, aspect ratio for size */}
+          <div style={{
+            position: "relative",
+            width: "100%",
+            aspectRatio: isLandscape
+              ? ["4/3", "5/4", "7/5"][sizeIdx]
+              : ["3/4", "4/5", "5/7"][sizeIdx],
+            background: showPrint ? "#f5f2ee" : "#000",
+            transition: "aspect-ratio 0.4s ease, background 0.3s ease",
+            overflow: "hidden",
+          }}>
 
-          {/* Image — inset by border amount */}
-          <img
-            ref={imgRef}
-            onLoad={() => {
-              if (imgRef.current) {
-                const w = imgRef.current.naturalWidth;
-                const h = imgRef.current.naturalHeight;
-                setIsLandscape(w > h);
-                setImgSize({ w: imgRef.current.offsetWidth, h: imgRef.current.offsetHeight });
-              }
-            }}
-            src={photo.imageUrl}
-            alt={photo.title}
-            style={{
-              position: "absolute",
-              top: `${showPrint ? borderFrac * 100 : 0}%`,
-              left: `${showPrint ? borderFrac * 100 : 0}%`,
-              width: `${showPrint ? (1 - borderFrac * 2) * 100 : 100}%`,
-              height: `${showPrint ? (1 - borderFrac * 2) * 100 : 100}%`,
-              objectFit: "cover",
-              display: "block",
-              transition: "all 0.35s ease",
-            }}
-          />
+            {/* Image — inset by border amount */}
+            <img
+              ref={imgRef}
+              onLoad={() => {
+                if (imgRef.current) {
+                  const w = imgRef.current.naturalWidth;
+                  const h = imgRef.current.naturalHeight;
+                  setIsLandscape(w > h);
+                  setImgSize({ w: imgRef.current.offsetWidth, h: imgRef.current.offsetHeight });
+                }
+              }}
+              src={photo.imageUrl}
+              alt={photo.title}
+              style={{
+                position: "absolute",
+                top: `${showPrint ? borderFrac * 100 : 0}%`,
+                left: `${showPrint ? borderFrac * 100 : 0}%`,
+                width: `${showPrint ? (1 - borderFrac * 2) * 100 : 100}%`,
+                height: `${showPrint ? (1 - borderFrac * 2) * 100 : 100}%`,
+                objectFit: "cover",
+                display: "block",
+                transition: "all 0.35s ease",
+              }}
+            />
 
-          {/* Title overlay */}
-          {showPrint && textPosition !== "none" && customText && (
-            <div style={{
-              position: "absolute",
-              top: `${textTopPct}%`,
-              left: `${borderFrac * 100 + 2}%`,
-              width: `${(1 - borderFrac * 2) * 100 - 4}%`,
-              textAlign: "center",
-              ...FONTS[fontIdx].style,
-              color: "rgba(240, 235, 225, 0.9)",
-              pointerEvents: "none",
-              textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-              transition: "top 0.3s ease",
-            }}>
-              {customText}
-            </div>
-          )}
+            {/* Title overlay */}
+            {showPrint && textPosition !== "none" && customText && (
+              <div style={{
+                position: "absolute",
+                top: `${textTopPct}%`,
+                left: `${borderFrac * 100 + 2}%`,
+                width: `${(1 - borderFrac * 2) * 100 - 4}%`,
+                textAlign: "center",
+                ...FONTS[fontIdx].style,
+                color: "rgba(240, 235, 225, 0.9)",
+                pointerEvents: "none",
+                textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                transition: "top 0.3s ease",
+              }}>
+                {customText}
+              </div>
+            )}
 
-          {/* Size label */}
-          {showPrint && (
-            <div style={{
-              position: "absolute", bottom: 10, left: "50%", transform: "translateX(-50%)",
-              fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase",
-              color: "rgba(80,80,80,0.6)", pointerEvents: "none", whiteSpace: "nowrap",
-            }}>
-              {size.label} · {BORDERS[borderIdx].label}
-            </div>
-          )}
+            {/* Size label */}
+            {showPrint && (
+              <div style={{
+                position: "absolute", bottom: 10, left: "50%", transform: "translateX(-50%)",
+                fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase",
+                color: "rgba(80,80,80,0.6)", pointerEvents: "none", whiteSpace: "nowrap",
+              }}>
+                {size.label} · {size.name} · {BORDERS[borderIdx].label}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -247,10 +285,13 @@ export default function PhotoDetail({ photo }) {
                 {SIZES.map((s, i) => (
                   <button key={i} onClick={() => setSizeIdx(i)} style={{
                     ...btn(sizeIdx === i), padding: "10px 14px", fontSize: 11,
-                    textAlign: "left", display: "flex", justifyContent: "space-between",
+                    textAlign: "left", display: "flex", flexDirection: "column", alignItems: "stretch", gap: 2,
                   }}>
-                    <span>{s.label}</span>
-                    <span style={{ color: sizeIdx === i ? "#aaa" : "#444" }}>{s.price}€</span>
+                    <span style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ fontWeight: 500 }}>{s.label}</span>
+                      <span style={{ color: sizeIdx === i ? "#aaa" : "#444", letterSpacing: "0.1em" }}>{s.price}€</span>
+                    </span>
+                    <span style={{ fontSize: 9, color: "#555", letterSpacing: "0.2em" }}>{s.name}</span>
                   </button>
                 ))}
               </div>
@@ -319,6 +360,47 @@ export default function PhotoDetail({ photo }) {
               {["Hahnemühle Photo Rag 308gsm", "Rolled in archival tube", "Signed & numbered", "Ships in 5–7 days"].map((item, i) => (
                 <p key={i} style={{ fontSize: 11, color: "#888", margin: 0 }}>✓ {item}</p>
               ))}
+            </div>
+
+            {/* Specs — Photoshop / Lightroom */}
+            <div style={{ borderTop: "1px solid #1a1a1a", paddingTop: 16 }}>
+              <button
+                type="button"
+                onClick={() => setShowSpecs(!showSpecs)}
+                style={{
+                  background: "none", border: "none", cursor: "pointer", padding: 0,
+                  fontSize: 9, letterSpacing: "0.4em", textTransform: "uppercase", color: "#555",
+                  display: "flex", alignItems: "center", gap: 8,
+                }}
+              >
+                {showSpecs ? "▼" : "▶"} Photoshop / Lightroom specs
+              </button>
+              {showSpecs && (
+                <div style={{ marginTop: 16 }}>
+                  {[
+                    ["Canvas", printSpecs.canvas],
+                    ["White border", printSpecs.border],
+                    ["Text placement", printSpecs.textPos],
+                    ["Approx. text size", printSpecs.textSize],
+                    ["Letter spacing", printSpecs.tracking],
+                    ["Frame", printSpecs.frame],
+                  ].map(([k, v]) => (
+                    <div key={k} style={{ display: "flex", borderBottom: "1px solid #1a1a1a", padding: "10px 0" }}>
+                      <div style={{ width: 120, flexShrink: 0, fontSize: 9, letterSpacing: "0.25em", textTransform: "uppercase", color: "#555" }}>{k}</div>
+                      <div style={{ fontSize: 11, color: "#aaa", letterSpacing: "0.05em" }}>{v}</div>
+                    </div>
+                  ))}
+                  <div style={{ marginTop: 16, padding: 14, border: "1px solid #1a1a1a", background: "#0a0a0a" }}>
+                    <p style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#555", marginBottom: 10 }}>Workflow</p>
+                    {PHOTOSHOP_WORKFLOW.map((step, i) => (
+                      <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8, alignItems: "flex-start" }}>
+                        <span style={{ fontSize: 9, color: "#444", minWidth: 14 }}>{i + 1}.</span>
+                        <span style={{ fontSize: 11, color: "#888", lineHeight: 1.5 }}>{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
