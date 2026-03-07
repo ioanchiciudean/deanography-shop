@@ -2,6 +2,7 @@
 export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
 import { sanityClient } from '../../lib/sanity';
+import PrintSelector from '../../components/PrintSelector';
 
 const { slug } = Astro.params;
 
@@ -27,13 +28,13 @@ if (!photo) {
 
 <Layout>
   <main class="min-h-screen bg-black text-white">
-    
+
     <div class="px-6 pt-10">
       <a href="/" class="text-gray-500 text-sm tracking-widest uppercase hover:text-white transition">Gallery</a>
     </div>
 
     <div class="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-      
+
       <img src={photo.imageUrl} alt={photo.title} class="w-full rounded-sm" />
 
       <div class="flex flex-col gap-6">
@@ -44,43 +45,14 @@ if (!photo) {
 
         <p class="text-gray-300 leading-relaxed">{photo.description}</p>
 
-        <div class="border border-gray-800 rounded-sm p-5 flex flex-col gap-2">
-          <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">What you get</p>
-          <p class="text-sm text-gray-300">✓ High resolution digital file (JPEG)</p>
-          <p class="text-sm text-gray-300">✓ Instant download after purchase</p>
-          <p class="text-sm text-gray-300">✓ Personal use license</p>
-        </div>
-
-        <div class="flex items-center gap-6">
-            <span class="text-4xl font-bold">{photo.price}€</span>
-            <button 
-              id="buy-btn"
-              data-title={photo.title}
-              data-price={photo.price}
-              data-slug={photo.slug}
-              class="bg-white text-black px-8 py-3 text-sm font-semibold tracking-widest uppercase hover:bg-gray-200 transition flex-1"
-            >
-              Buy Now
-            </button>
-          </div>
-
-          <script>
-            const btn = document.getElementById('buy-btn');
-            btn?.addEventListener('click', async () => {
-              btn.textContent = 'Loading...';
-              const res = await fetch('/api/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  title: btn.dataset.title,
-                  price: Number(btn.dataset.price),
-                  slug: btn.dataset.slug,
-                }),
-              });
-              const { url } = await res.json();
-              window.location.href = url;
-            });
-          </script>
+        <PrintSelector
+          client:load
+          imageUrl={photo.imageUrl}
+          title={photo.title}
+          slug={photo.slug}
+          digitalPrice={photo.price}
+        />
+      </div>
 
     </div>
   </main>
