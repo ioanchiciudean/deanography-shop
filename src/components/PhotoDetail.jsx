@@ -69,8 +69,8 @@ export default function PhotoDetail({ photo }) {
   // Text vertical position inside image
   const textTopPct =
     textPosition === "top" ? 8 :
-    textPosition === "center" ? 48 :
-    84;
+      textPosition === "center" ? 48 :
+        84;
 
   async function handleBuy() {
     setLoading(true);
@@ -89,31 +89,40 @@ export default function PhotoDetail({ photo }) {
   return (
     <div style={{ maxWidth: 1200, margin: "0 auto", padding: "2.5rem 2rem", display: "grid", gridTemplateColumns: "1fr 420px", gap: "4rem", alignItems: "start" }}>
 
-      {/* LEFT — sticky image with live preview overlay */}
+      {/* LEFT — sticky image with live preview */}
       <div style={{ position: "sticky", top: 80, alignSelf: "start" }}>
-        <div style={{ position: "relative", display: "inline-block", width: "100%" }}>
 
-          {/* Base image */}
+        {/* Outer container — white background for border, aspect ratio for size */}
+        <div style={{
+          position: "relative",
+          width: "100%",
+          aspectRatio: ["3/4", "4/5", "5/7"][sizeIdx],
+          background: showPrint ? "#f5f2ee" : "#000",
+          transition: "aspect-ratio 0.4s ease, background 0.3s ease",
+          overflow: "hidden",
+        }}>
+
+          {/* Image — inset by border amount */}
           <img
-            ref={imgRef} onLoad={() => {
+            ref={imgRef}
+            onLoad={() => {
               if (imgRef.current) setImgSize({ w: imgRef.current.offsetWidth, h: imgRef.current.offsetHeight });
             }}
             src={photo.imageUrl}
             alt={photo.title}
-            style={{ width: "100%", display: "block" }}
+            style={{
+              position: "absolute",
+              top: `${showPrint ? borderFrac * 100 : 0}%`,
+              left: `${showPrint ? borderFrac * 100 : 0}%`,
+              width: `${showPrint ? (1 - borderFrac * 2) * 100 : 100}%`,
+              height: `${showPrint ? (1 - borderFrac * 2) * 100 : 100}%`,
+              objectFit: "cover",
+              display: "block",
+              transition: "all 0.35s ease",
+            }}
           />
 
-          {/* Print border overlay */}
-          {showPrint && borderPx > 0 && (
-            <div style={{
-              position: "absolute", inset: 0,
-              boxShadow: `inset 0 0 0 ${borderPx}px rgba(245, 242, 238, 0.92)`,
-              pointerEvents: "none",
-              transition: "box-shadow 0.3s ease",
-            }} />
-          )}
-
-          {/* Title overlay on image */}
+          {/* Title overlay */}
           {showPrint && textPosition !== "none" && customText && (
             <div style={{
               position: "absolute",
@@ -138,11 +147,11 @@ export default function PhotoDetail({ photo }) {
           {/* Size label */}
           {showPrint && (
             <div style={{
-              position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)",
+              position: "absolute", bottom: 10, left: "50%", transform: "translateX(-50%)",
               fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase",
-              color: "rgba(255,255,255,0.4)", pointerEvents: "none",
+              color: "rgba(80,80,80,0.6)", pointerEvents: "none", whiteSpace: "nowrap",
             }}>
-              {size.label} · {border.label}
+              {size.label} · {BORDERS[borderIdx].label}
             </div>
           )}
         </div>
