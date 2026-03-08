@@ -63,8 +63,7 @@ const photos = await sanityClient.fetch(`
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
-    /* Allow portrait items to span multiple rows and pack tightly while preserving gutters */
-    grid-auto-rows: 260px;
+    grid-auto-rows: 280px;
     grid-auto-flow: dense;
   }
   .card {
@@ -72,11 +71,9 @@ const photos = await sanityClient.fetch(`
     position: relative;
     overflow: hidden;
     background: #111;
-    aspect-ratio: 3/2;
     text-decoration: none;
   }
   .card-portrait {
-    aspect-ratio: 3/4;
     grid-row: span 2;
   }
   .card-img {
@@ -92,7 +89,7 @@ const photos = await sanityClient.fetch(`
   .card-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 50%);
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
     opacity: 0;
     transition: opacity 0.4s ease;
     display: flex;
