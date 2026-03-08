@@ -1,6 +1,6 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { sanityClient } from '../lib/sanity';
+import Layout from "../layouts/Layout.astro";
+import { sanityClient } from "../lib/sanity";
 
 const photos = await sanityClient.fetch(`
   *[_type == "photo"] | order(_createdAt desc) {
@@ -18,27 +18,27 @@ const photos = await sanityClient.fetch(`
 
 <Layout>
   <main class="min-h-screen bg-white text-gray-900">
-
     <div class="header">
       <p class="subtitle">Fine art photography — available to own</p>
     </div>
 
     <div class="grid">
-      {photos.map((photo: any) => (
-        <a
-          href={`/photo/${photo.slug.current}`}
-          class={`card ${photo.imageHeight > photo.imageWidth ? 'card-portrait' : ''}`}
-        >
-          <img src={photo.imageUrl} alt={photo.title} class="card-img" />
-          <div class="card-overlay">
-            <p class="card-title">{photo.title}</p>
-            <p class="card-location">{photo.location}</p>
-            <p class="card-price">from {photo.price}€</p>
-          </div>
-        </a>
-      ))}
+      {
+        photos.map((photo: any) => (
+          <a
+            href={`/photo/${photo.slug.current}`}
+            class={`card ${photo.imageHeight > photo.imageWidth ? "card-portrait" : ""}`}
+          >
+            <img src={photo.imageUrl} alt={photo.title} class="card-img" />
+            <div class="card-overlay">
+              <p class="card-title">{photo.title}</p>
+              <p class="card-location">{photo.location}</p>
+              <p class="card-price">from {photo.price}€</p>
+            </div>
+          </a>
+        ))
+      }
     </div>
-
   </main>
 </Layout>
 
@@ -62,8 +62,7 @@ const photos = await sanityClient.fetch(`
     padding: 0 3rem 6rem;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    row-gap: 3rem;
-    column-gap: 2rem;
+    gap: 2rem;
     /* Allow portrait items to span multiple rows and pack tightly while preserving gutters */
     grid-auto-rows: 260px;
     grid-auto-flow: dense;
@@ -93,7 +92,7 @@ const photos = await sanityClient.fetch(`
   .card-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 50%);
     opacity: 0;
     transition: opacity 0.4s ease;
     display: flex;
